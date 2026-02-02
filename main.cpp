@@ -123,7 +123,7 @@ int convert_IType_Arithmetic_Shamt(std::string instructionInput) {
     instruction.rd.erase(commaIndex, 1);
 
     instruction.rs1=instructionTokens[2];
-    commaIndex = instruction.rd.find(",");
+    commaIndex = instruction.rs1.find(",");
     instruction.rs1.erase(commaIndex, 1);
 
     instruction.shamt=instructionTokens[3];
@@ -175,7 +175,7 @@ int convert_IType_Arithmetic_Imm(std::string instructionInput) {
     instruction.rd.erase(commaIndex, 1);
 
     instruction.rs1=instructionTokens[2];
-    commaIndex = instruction.rd.find(",");
+    commaIndex = instruction.rs1.find(",");
     instruction.rs1.erase(commaIndex, 1);
 
     instruction.imm=instructionTokens[3];
@@ -235,9 +235,11 @@ int convert_IType_Load(std::string instructionInput) {
     int offset = std::stoi(instructionTokens[2].substr(0, instructionTokens[2].find('(')));
     instruction.imm = std::bitset<12>(offset & 0xFFF).to_string(); // & 0xFFF handles neg values
 
-    instruction.rs1 = std::bitset<5>(std::stoi(instructionTokens[2].substr(2, instructionTokens[2].find(')'))) & 0xFFF).to_string();
+    int leftParenthesisIndex = instructionTokens[2].find('(');
+    int rightParenthesisIndex = instructionTokens[2].find(')');
+    std::string rs1 = instructionTokens[2].substr(leftParenthesisIndex+1, rightParenthesisIndex-leftParenthesisIndex-1);
 
-    instruction.opcode="0010011";
+    instruction.opcode="0000011";
 
     if(instruction.inst=="lb") {
         instruction.funct3="000";
@@ -257,7 +259,7 @@ int convert_IType_Load(std::string instructionInput) {
     } 
 
     instruction.rd = registerToBinary(instruction.rd);
-    instruction.rs1 = registerToBinary(instruction.rs1);
+    instruction.rs1 = registerToBinary(rs1);
 
     instruction.label=instruction.imm+instruction.rs1+instruction.funct3+instruction.rd+instruction.opcode; // if we need the string representation
 
@@ -289,14 +291,16 @@ int convert_IType_Jump(std::string instructionInput) {
     int offset = std::stoi(instructionTokens[2].substr(0, instructionTokens[2].find('(')));
     instruction.imm = std::bitset<12>(offset & 0xFFF).to_string(); // & 0xFFF handles neg values
 
-    instruction.rs1 = std::bitset<5>(std::stoi(instructionTokens[2].substr(2, instructionTokens[2].find(')'))) & 0xFFF).to_string();
+    int leftParenthesisIndex = instructionTokens[2].find('(');
+    int rightParenthesisIndex = instructionTokens[2].find(')');
+    std::string rs1 = instructionTokens[2].substr(leftParenthesisIndex+1, rightParenthesisIndex-leftParenthesisIndex-1);
 
-    instruction.opcode="0010011";
+    instruction.opcode="1100111";
 
     instruction.funct3="000";
 
     instruction.rd = registerToBinary(instruction.rd);
-    instruction.rs1 = registerToBinary(instruction.rs1);
+    instruction.rs1 = registerToBinary(rs1);
 
     instruction.label=instruction.imm+instruction.rs1+instruction.funct3+instruction.rd+instruction.opcode; // if we need the string representation
 
@@ -307,7 +311,7 @@ int convert_IType_Jump(std::string instructionInput) {
 }
 
 int main () {
-    std::string filename = "add_shift.s";
+    std::string filename = "test.s";
 
     std::ifstream inputFile(filename);
 
@@ -337,6 +341,11 @@ int main () {
             convert_IType_Jump(line);
 
         }
+
+    }
+
+    for(int i=0; i<binaryInstructions.size(); i++) {
+        printf("%s\n", binaryInstructions[i].c_str());
 
     }
 
