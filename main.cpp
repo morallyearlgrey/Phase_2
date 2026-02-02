@@ -47,10 +47,12 @@ typedef struct ITypeInstruction_Load {
 } itype_load;
 
 typedef struct ITypeInstruction_Jump {
+    std::string inst;
     std::string rd;
-    std::string offset;
+    std::string imm;
     std::string rs1;
     std::string opcode;
+    std::string funct3;
 
     std::string label;
 
@@ -115,8 +117,15 @@ int convert_IType_Arithmetic_Shamt(std::string instructionInput) {
     itype_arithmetic_shamt instruction;
     
     instruction.inst=instructionTokens[0];
-    instruction.rd=instructionTokens[1].substr(0, 2); // get rid of comma
-    instruction.rs1=instructionTokens[2].substr(0, 2); // get rid of comma
+
+    instruction.rd=instructionTokens[1];
+    int commaIndex = instruction.rd.find(",");
+    instruction.rd.erase(commaIndex, 1);
+
+    instruction.rs1=instructionTokens[2];
+    commaIndex = instruction.rd.find(",");
+    instruction.rs1.erase(commaIndex, 1);
+
     instruction.shamt=instructionTokens[3];
     instruction.opcode="0010011";
 
@@ -160,8 +169,15 @@ int convert_IType_Arithmetic_Imm(std::string instructionInput) {
     itype_arithmetic_imm instruction;
     
     instruction.inst=instructionTokens[0];
-    instruction.rd=instructionTokens[1].substr(0, 2); // get rid of comma
-    instruction.rs1=instructionTokens[2].substr(0, 2); // get rid of comma
+
+    instruction.rd=instructionTokens[1];
+    int commaIndex = instruction.rd.find(",");
+    instruction.rd.erase(commaIndex, 1);
+
+    instruction.rs1=instructionTokens[2];
+    commaIndex = instruction.rd.find(",");
+    instruction.rs1.erase(commaIndex, 1);
+
     instruction.imm=instructionTokens[3];
     instruction.opcode="0010011";
 
@@ -212,12 +228,14 @@ int convert_IType_Load(std::string instructionInput) {
     
     instruction.inst=instructionTokens[0];
 
-    instruction.rd=instructionTokens[1].substr(0, 2); // get rid of comma
+    instruction.rd=instructionTokens[1];
+    int commaIndex = instruction.rd.find(",");
+    instruction.rd.erase(commaIndex, 1);
 
-    int offset = std::stoi(instructionTokens[2].substr(0, 1));
+    int offset = std::stoi(instructionTokens[2].substr(0, instructionTokens[2].find('(')));
     instruction.imm = std::bitset<12>(offset & 0xFFF).to_string(); // & 0xFFF handles neg values
 
-    instruction.rs1 = std::bitset<5>(std::stoi(instructionTokens[2].substr(2, 2)) & 0xFFF).to_string();
+    instruction.rs1 = std::bitset<5>(std::stoi(instructionTokens[2].substr(2, instructionTokens[2].find(')'))) & 0xFFF).to_string();
 
     instruction.opcode="0010011";
 
@@ -249,8 +267,42 @@ int convert_IType_Load(std::string instructionInput) {
 
 }
 
-int convert_IType_Jump(std::string inst) {
+int convert_IType_Jump(std::string instructionInput) {
+    // tokenize to make instruction
+    std:std::istringstream sstream(instructionInput);
+    std::string instructionToken;
+    std::vector<std::string> instructionTokens;
 
+    while(sstream >> instructionToken) { // while sep by whitespace
+        instructionTokens.push_back(instructionToken);
+
+    }
+
+    itype_jump instruction;
+    
+    instruction.inst=instructionTokens[0];
+
+    instruction.rd=instructionTokens[1];
+    int commaIndex = instruction.rd.find(",");
+    instruction.rd.erase(commaIndex, 1);
+
+    int offset = std::stoi(instructionTokens[2].substr(0, instructionTokens[2].find('(')));
+    instruction.imm = std::bitset<12>(offset & 0xFFF).to_string(); // & 0xFFF handles neg values
+
+    instruction.rs1 = std::bitset<5>(std::stoi(instructionTokens[2].substr(2, instructionTokens[2].find(')'))) & 0xFFF).to_string();
+
+    instruction.opcode="0010011";
+
+    instruction.funct3="000";
+
+    instruction.rd = registerToBinary(instruction.rd);
+    instruction.rs1 = registerToBinary(instruction.rs1);
+
+    instruction.label=instruction.imm+instruction.rs1+instruction.funct3+instruction.rd+instruction.opcode; // if we need the string representation
+
+    binaryInstructions.push_back(instruction.label); // add to a binary instructions vector
+
+    return(std::stoi(instruction.label, nullptr, 2)); // if we need the int representation
 
 }
 
