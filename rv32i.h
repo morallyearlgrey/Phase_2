@@ -6,6 +6,8 @@
 #include <vector>
 
 #include <unordered_map>
+#include <iomanip>
+#include <sstream>
 
 
 enum class InstructionType { R, I, S, B, U, J };
@@ -173,7 +175,12 @@ inline const Register* getRegister(const std::string& name){
 	return nullptr;
 }
 
-
+std::string binaryToHex(uint32_t inst) {
+   std::stringstream ss;
+   ss << std::uppercase << std::setfill('0') << std::setw(8)
+      << std::hex << inst;
+   return ss.str();
+}
 
 #endif // RV32I_H
 

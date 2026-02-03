@@ -7,7 +7,7 @@
 #include <type_traits>
 
 
-void processRType(std::string line, const Instruction* instruction);
+std::string processRType(std::string line, const Instruction* instruction);
 
 std::string convert_IType_Arithmetic_Imm_Shamt(std::string instructionInput, const Instruction * instruction);
 std::string convert_IType_Load_Jump(std::string instructionInput, const Instruction* instruction);
@@ -24,6 +24,11 @@ int main() {
 
   // Open the file
   std::ifstream inputFile(filename);
+
+    std::ofstream binaryFile("add_shift.bin");
+      std::ofstream hexFile("add_shift.hex.txt");
+
+
 
   // Check if the file opened successfully
   if (!inputFile.is_open()) {
@@ -73,6 +78,8 @@ int main() {
     } else {
       const Instruction *instruction = getInstructions(token);
 
+      std::string label;
+
       if (instruction != nullptr) {
         // std::cout << "Found the following: ";
         // std::cout << instruction->name << '\t';
@@ -86,14 +93,14 @@ int main() {
         switch (instruction->type) {
 
         case InstructionType::R:
-          processRType(line, instruction);
+          label = processRType(line, instruction);
           break;
         case InstructionType::I:
             if (instruction->name == "addi" || instruction->name == "slti" || instruction->name == "sltiu" || instruction->name == "xori" || instruction->name == "ori"|| instruction->name == "andi" || instruction->name == "slli" || instruction->name == "srli" || instruction->name == "srai") {
-                convert_IType_Arithmetic_Imm_Shamt(line, instruction);
+                label = convert_IType_Arithmetic_Imm_Shamt(line, instruction);
 
             } else if(instruction->name == "lb" || instruction->name == "lh" || instruction->name == "lw" || instruction->name == "lbu" || instruction->name == "lhu" || instruction->name == "jalr") {
-                convert_IType_Load_Jump(line, instruction);
+                label = convert_IType_Load_Jump(line, instruction);
 
             }
             break;
@@ -115,12 +122,35 @@ int main() {
           break;
         }
       }
+
+
+      if(binaryFile.is_open()) {
+
+        binaryFile << label << std::endl;
+
+      }
+
+
+      uint32_t binaryDecimalForm = std::bitset<32>(label).to_ulong();
+      std::string hexForm = binaryToHex(binaryDecimalForm);
+
+      if(hexFile.is_open()) {
+
+        hexFile << "0x" + hexForm << std::endl;
+
+      }
+
     }
+
+
+
     std::cout << std::endl;
     // now we do checks to see what type of thing it is
   }
 
   // Close the file (optional as destructor closes it, but good practice)
+
+  binaryFile.close();
   inputFile.close();
 
   return 0;
@@ -141,7 +171,7 @@ std::string registerToBinary(const std::string registerName) {
   return std::bitset<5>(binary).to_string();
 }
 
-void processRType(std::string line, const Instruction *instruction) {
+std::string processRType(std::string line, const Instruction *instruction) {
   // R = funct 7 + rs2 + rs1 + funct3 + rd + opcode
   std::stringstream ss(line);
   std::string token;
@@ -184,6 +214,8 @@ void processRType(std::string line, const Instruction *instruction) {
   // get final result
   std::string binaryResult = binary_funct3 + binary_rs2 + binary_rs1 +
                              binary_funct7 + binary_rd + binary_opcode;
+
+    return binaryResult;
 
 }
 
