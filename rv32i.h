@@ -159,6 +159,7 @@ inline const Register* getRegister(const std::string& name){
 	if(lookupMap.empty()){
 		for(const auto& regist: registers){
 			lookupMap[regist.name] = &regist;
+			lookupMap["x"+std::to_string(regist.address)]=&regist;
 		}
 		
 	}

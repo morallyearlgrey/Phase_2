@@ -20,7 +20,7 @@ void processJType(std::string line, const Instruction* instruction);
 
 int main() {
   // The filename to read
-  std::string filename = "add_shift.s";
+  std::string filename = "test.s";
 
   // Open the file
   std::ifstream inputFile(filename);
