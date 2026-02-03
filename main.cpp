@@ -94,7 +94,7 @@ int main() {
                     break;
 
                 case InstructionType::S:
-                    label="11111111111111111111111111111111";
+                    label = processSType(line, instruction);
                     break;
 
                 case InstructionType::B:
@@ -102,11 +102,13 @@ int main() {
                     break;
 
                 case InstructionType::U:
-                    label="11111111111111111111111111111111";
+                    // label="11111111111111111111111111111111"; // Keep for debugging since U is not finalized yet
+                    label = processUType(line, instruction);
                     break;
 
                 case InstructionType::J:
-                    label="11111111111111111111111111111111";
+                    // label="11111111111111111111111111111111"; // Keep for debugging since U is not finalized yet
+                    label = processJType(line, instruction);
                     break;
 
                 default:
@@ -400,14 +402,76 @@ std::string processSType(std::string line, const Instruction* instruction)
 }
 std::string processUType(std::string line, const Instruction* instruction)
 {
-    return "";
+// U = imm + rd + opcode
+	// needs the labels
+	std::stringstream ss(line);
+	std::string token;
+	std::string rd;
+	std::string imm;
+	std::string opcode;
+	int rd_int;
 
-	// U = imm + rd + opcodew
+	// parse lin
+	ss >> token; 	// gets instruction name
+	ss >> rd;
+	rd.pop_back();
+	ss >> imm; 	// gets rd
+	//funct7 = instruction->funct7;
+	//funct3 = instruction->funct3;
+	//opcode = instruction->opcode;
+	rd_int = getRegister(rd)->address;
+
+	// imm creation
+	// imm_u = [31] + inst[30:20] + inst[19:12] 0[11:0]
+	// first things first, check if imm is in the data fields
+	// if (imm exist in symbol table, we lookup for the value on that)
+	// (we can probbaly skip this and assume di wu is goated) else if it is not, check to see if it is a valid hex (or just assume it is one or do like auto something to extact it )
+
+	
+	std::string imm_fake = "11111111111111111111";
+
+
+
+	std::string binary;
+	binary = std::bitset<20>(imm_fake).to_string() + std::bitset<5>(rd_int).to_string() + std::bitset<7>(instruction->opcode).to_string();
+	return binary;
 }
 std::string processJType(std::string line, const Instruction* instruction)
 {
-    return "";
-	// J = imm + rd + opcode	
+	// J = imm + rd + opcode
+
+    // needs the labels
+	std::stringstream ss(line);
+	std::string token;
+	std::string rd;
+	std::string imm;
+	std::string opcode;
+	int rd_int;
+
+	// parse lin
+	ss >> token; 	// gets instruction name
+	ss >> rd;
+	rd.pop_back();
+	ss >> imm; 	// gets rd
+	//funct7 = instruction->funct7;
+	//funct3 = instruction->funct3;
+	//opcode = instruction->opcode;
+	rd_int = getRegister(rd)->address;
+
+	// imm creation
+	// imm_u = [31] + inst[30:20] + inst[19:12] 0[11:0]
+	// first things first, check if imm is in the data fields
+	// if (imm exist in symbol table, we lookup for the value on that)
+	// (we can probbaly skip this and assume di wu is goated) else if it is not, check to see if it is a valid hex (or just assume it is one or do like auto something to extact it )
+
+	
+	std::string imm_fake = "00000000000000000000";
+
+
+
+	std::string binary;
+	binary = std::bitset<20>(imm_fake).to_string() + std::bitset<5>(rd_int).to_string() + std::bitset<7>(instruction->opcode).to_string();
+	return binary;
 }
 
 
