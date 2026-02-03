@@ -4,6 +4,7 @@
 #include <iostream>
 #include <type_traits>
 #include <unordered_map>
+#include <string>
 
 std::string processRType(std::string line, const Instruction* instruction);
 
@@ -30,15 +31,19 @@ int main(int argc, char* argv[]) {
     }
     
     std::string basePath = argv[1];
-    std::string assemblyFile = argv[2];
+    std::string inputPath = argv[2]; 
     
     if (!basePath.empty() && basePath.back() != '/') {
         basePath += '/';
     }
     
-    std::string inputPath = basePath + assemblyFile;
+    std::string filename = inputPath;
+    size_t lastSlash = inputPath.rfind('/');
+    if (lastSlash != std::string::npos) {
+        filename = inputPath.substr(lastSlash + 1);
+    }
     
-    std::string baseName = assemblyFile;
+    std::string baseName = filename;
     size_t dotPos = baseName.rfind('.');
     if (dotPos != std::string::npos) {
         baseName = baseName.substr(0, dotPos);
