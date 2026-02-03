@@ -10,10 +10,10 @@ std::string processRType(std::string line, const Instruction* instruction);
 std::string convert_IType_Arithmetic_Imm_Shamt(std::string instructionInput, const Instruction * instruction);
 std::string convert_IType_Load_Jump(std::string instructionInput, const Instruction* instruction);
 
-void processSType(std::string line, const Instruction* instruction);
-void processBType(std::string line, const Instruction* instruction);
-void processUType(std::string line, const Instruction* instruction);
-void processJType(std::string line, const Instruction* instruction);
+std::string processSType(std::string line, const Instruction* instruction);
+std::string processBType(std::string line, const Instruction* instruction);
+std::string processUType(std::string line, const Instruction* instruction);
+std::string processJType(std::string line, const Instruction* instruction);
 uint32_t parseImmediate(const std::string immediate);
 
 // Global map to store label addresses
@@ -94,7 +94,7 @@ int main() {
                     break;
 
                 case InstructionType::S:
-                    processSType(line, instruction);
+                    label="11111111111111111111111111111111";
                     break;
 
                 case InstructionType::B:
@@ -102,11 +102,11 @@ int main() {
                     break;
 
                 case InstructionType::U:
-                    processUType(line, instruction);
+                    label="11111111111111111111111111111111";
                     break;
 
                 case InstructionType::J:
-                    processJType(line, instruction);
+                    label="11111111111111111111111111111111";
                     break;
 
                 default:
@@ -350,16 +350,21 @@ std::string processBType(std::string line, const Instruction *instruction) {
 
 }
 
-void processSType(std::string line, const Instruction* instruction)
+std::string processSType(std::string line, const Instruction* instruction)
 {
+    return "";
+
 	// S =imm + rs2 + rs1 + funct3 + imm + opcode
 }
-void processUType(std::string line, const Instruction* instruction)
+std::string processUType(std::string line, const Instruction* instruction)
 {
+    return "";
+
 	// U = imm + rd + opcodew
 }
-void processJType(std::string line, const Instruction* instruction)
+std::string processJType(std::string line, const Instruction* instruction)
 {
+    return "";
 	// J = imm + rd + opcode	
 }
 
