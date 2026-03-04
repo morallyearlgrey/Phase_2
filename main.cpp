@@ -327,7 +327,7 @@ std::string processBType(std::string line, const Instruction *instruction) {
 
   // Compute offset (label address - PC), then >> 1
   int32_t offset = label_b - PC;
-  int32_t imm = offset >> 1;
+  int32_t imm = offset;
 
   // Extract immediate fields
   uint32_t imm12   = (imm >> 12) & 0x1;
